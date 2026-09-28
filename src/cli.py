@@ -1,8 +1,9 @@
 import argparse
 from pathlib import Path
+from src.application import Application
+import json
 
-
-def valid_config_file(value:str) -> Path:
+def valid_config_file(value: str) -> Path:
     path = Path(value)
 
     if not path.is_file():
@@ -50,11 +51,18 @@ def run() -> None:
     parser = build_parser()
     args = parser.parse_args()
         
+    application = Application(
+        mode=args.mode,
+        config_path=args.config
+    )    
+    
     startup_message = "Automotive Engine Simulator \n===========================\nInitializing simulation..."
         
 
 
     print(startup_message)
-    if args.config is not None:
-        print(f"Config File used: {args.config}")
-    print(f"Mode: {args.mode}")
+    status = application.status()
+    print(json.dumps(status, indent=4))
+    
+
+
