@@ -2,6 +2,11 @@ from pathlib import Path
 from enum import Enum, auto
 import time 
 import threading
+from src.engine import Engine
+from src.config import EngineConfig
+
+
+
 
 class ApplicationState(Enum):
     CREATED = auto()
@@ -34,15 +39,21 @@ class Application:
         self.accumulator = 0.0
         self.simulation_thread = None
         self.stop_event = threading.Event()
+        self.config = EngineConfig()
+        self.engine = Engine(self.config)
         
     def report(self) -> dict :
-        return {
+
+        report = {
             "Current effective mode": self.application_mode,
             "Config file used": str(self.config_path),
             "Simulation time": self.simulation_time,    
             "Step count": self.step_count,
             "state": self.state.name
         }
+        total_report =  report  | self.engine.report()
+        return total_report
+
 
     def start(self) -> None:
         if self.state is not ApplicationState.CREATED:
@@ -82,9 +93,11 @@ class Application:
     def step(self) -> None:
         if self.state is not ApplicationState.RUNNING:
             raise RuntimeError("Cannot step simulation: application is not running")
+        self.engine.update(self.FIXED_DT)
         self.simulation_time += self.FIXED_DT
         self.step_count += 1 
     def reset(self) -> None:
+        self.engine.reset()
         self.stop_event.set()
         self.state = ApplicationState.CREATED
         if self.simulation_thread is not None and self.simulation_thread is not threading.current_thread():

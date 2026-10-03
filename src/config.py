@@ -5,15 +5,17 @@ from dataclasses import dataclass
 @dataclass(frozen=True)
 class EngineConfig:
     """Configuration for the engine."""
-    cylinder_count: int
-    bore: float
-    stroke: float
-    connecting_rod_length: float
-    compression_ratio: float
-    crankshaft_inertia: float
+    cylinder_count: int = 4
+    bore: float = 0.084
+    stroke: float = 0.090
+    connecting_rod_length: float = 0.150
+    compression_ratio: float = 10.5
+    crankshaft_inertia: float = 0.12
     
     def __post_init__(self) -> None:
-        if self.cylinder_count <= 0 or self.cylinder_count != int(self.cylinder_count):
+        if (not isinstance(self.cylinder_count, int)
+            or isinstance(self.cylinder_count, bool)
+            or self.cylinder_count <= 0): 
             raise ValueError("Cylinder count must be a positive integer.")
             
         if self.bore <= 0:
