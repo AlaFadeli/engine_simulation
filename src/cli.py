@@ -1,9 +1,7 @@
 import argparse
 import json
 from pathlib import Path
-
 from src.application import Application
-
 
 def valid_config_file(value: str) -> Path:
     path = Path(value)
@@ -13,7 +11,6 @@ def valid_config_file(value: str) -> Path:
             f"config file does not exist: {path}"
         )
     return path
-
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -46,7 +43,6 @@ def build_parser() -> argparse.ArgumentParser:
 
     return parser
 
-
 def parse_command(user_input: str) -> tuple[str, list[str]] | None:
     parts = user_input.split()
     if not parts:
@@ -55,7 +51,6 @@ def parse_command(user_input: str) -> tuple[str, list[str]] | None:
     command = parts[0].lower()
     arguments = parts[1:]
     return command, arguments
-
 
 def handle_help(application: Application, arguments: list[str]) -> bool:
     print(
@@ -74,40 +69,32 @@ def handle_help(application: Application, arguments: list[str]) -> bool:
     )
     return False
 
-
 def handle_start(application: Application, arguments: list[str]) -> bool:
     application.start()
     return False
-
 
 def handle_pause(application: Application, arguments: list[str]) -> bool:
     application.pause()
     return False
 
-
 def handle_resume(application: Application, arguments: list[str]) -> bool:
     application.resume()
     return False
-
 
 def handle_step(application: Application, arguments: list[str]) -> bool:
     application.step()
     return False
 
-
 def handle_report(application: Application, arguments: list[str]) -> bool:
     print(json.dumps(application.report(), indent=4))
     return False
-
 
 def handle_reset(application: Application, arguments: list[str]) -> bool:
     application.reset()
     return False
 
-
 def handle_exit(application: Application, arguments: list[str]) -> bool:
     return True
-
 
 COMMAND_HANDLERS = {
     "help": handle_help,
@@ -134,7 +121,6 @@ def dispatch_command(
 
     return handler(application, arguments)
 
-
 def run_interactive_loop(application: Application) -> None:
     while True:
         try:
@@ -155,7 +141,6 @@ def run_interactive_loop(application: Application) -> None:
 
         if should_exit:
             break
-
 
 def run() -> None:
     parser = build_parser()
