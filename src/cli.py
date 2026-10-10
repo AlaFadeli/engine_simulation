@@ -40,14 +40,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="Run the simulator in headless mode.",
     )
     parser.set_defaults(mode="headless")
-
     return parser
 
 def parse_command(user_input: str) -> tuple[str, list[str]] | None:
     parts = user_input.split()
     if not parts:
         return None
-
     command = parts[0].lower()
     arguments = parts[1:]
     return command, arguments
