@@ -6,22 +6,22 @@ from src.engine import Engine
 from src.config import EngineConfig
 
 
-
-
 class ApplicationState(Enum):
     CREATED = auto()
     RUNNING = auto()
     PAUSED = auto()
+
+    
 class SimulationMode(Enum):
     DISCRETE = auto()
     CONTINUOUS = auto()
-
 
 
 class Application:
     VALID_APPLICATION_MODES = {"interactive", "headless"}
     FIXED_DT = 1/120 
     MAX_FRAME_DT = 0.25
+
 
     def __init__(self, mode: str, config_path:Path | None):
         if mode not in self.VALID_APPLICATION_MODES:
@@ -42,8 +42,8 @@ class Application:
         self.config = EngineConfig()
         self.engine = Engine(self.config)
         
-    def report(self) -> dict :
 
+    def report(self) -> dict :
         report = {
             "Current effective mode": self.application_mode,
             "Config file used": str(self.config_path),
@@ -68,6 +68,7 @@ class Application:
         )
         self.simulation_thread.start()
 
+
     def pause(self) -> None:
         if self.state is not ApplicationState.RUNNING:
             raise RuntimeError("Application cannot be paused")
@@ -77,6 +78,8 @@ class Application:
             self.simulation_thread.join()
         self.simulation_thread = None 
         self.stop_event.clear()
+
+
     def resume(self) -> None:
         if self.state is not ApplicationState.PAUSED:
             raise RuntimeError("Application is not paused")
@@ -90,12 +93,16 @@ class Application:
             target=self.run_continuous_loop
         )
         self.simulation_thread.start()
+
+
     def step(self) -> None:
         if self.state is not ApplicationState.RUNNING:
             raise RuntimeError("Cannot step simulation: application is not running")
         self.engine.update(self.FIXED_DT)
         self.simulation_time += self.FIXED_DT
         self.step_count += 1 
+
+
     def reset(self) -> None:
         self.engine.reset()
         self.stop_event.set()
@@ -104,26 +111,24 @@ class Application:
             self.simulation_thread.join()
         self.simulation_thread = None 
         self.stop_event.clear()
-
         self.simulation_time = 0.0
         self.step_count = 0
         self.accumulator = 0.0
 
+
     def run_continuous_loop(self) -> None:
         if self.simulation_mode == SimulationMode.DISCRETE:
             return
-
         previous_time = self.start_time
-
         while self.state == ApplicationState.RUNNING and not self.stop_event.is_set():
             current_time = time.monotonic()
             dt = current_time - previous_time
-
             if dt > self.MAX_FRAME_DT:
                 dt = self.MAX_FRAME_DT
-            
             self.accumulator += dt
             previous_time = current_time
             while self.accumulator >= self.FIXED_DT:
                 self.step()
                 self.accumulator -= self.FIXED_DT
+
+

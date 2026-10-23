@@ -1,6 +1,6 @@
 import pytest
 
-from src.application import Application, ApplicationState
+from src.application import Application, ApplicationState, SimulationMode
 
 @pytest.fixture
 def application():
@@ -51,7 +51,12 @@ def test_application_invalid_transitions(application):
     with pytest.raises(RuntimeError):
         application.resume()
 
-def test_application_step_updates_engine(application):
+def test_application_step_updates_engine():
+    application = Application(
+        mode="interactive",
+        config_path=None,
+    )
+    application.simulation_mode = SimulationMode.DISCRETE
     application.start()
     application.step()
     assert application.simulation_time == pytest.approx(application.FIXED_DT)
